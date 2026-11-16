@@ -45,6 +45,14 @@ async function loadCategories() {
   return (await fromSupabase('categories', 'id,name')) ?? categories
 }
 
+// Ambil :id dari request. Vercel mengisi req.query.id untuk route [id].js,
+// tapi kalau kosong kita ambil segmen terakhir dari url sebagai cadangan.
+export function idFrom(req) {
+  if (req.query?.id) return String(req.query.id)
+  const parts = (req.url || '').split('?')[0].split('/').filter(Boolean)
+  return parts[parts.length - 1]
+}
+
 // `segments` = bagian path setelah /api, mis. ['products','3'] atau [].
 export async function handle(req, res, segments) {
   if (req.method === 'OPTIONS') {
@@ -59,6 +67,14 @@ export async function handle(req, res, segments) {
   }
 
   const [resource, id] = segments
+
+  // /api saja: tampilkan daftar endpoint supaya mudah dicek di browser.
+  if (!resource) {
+    return sendJson(res, 200, {
+      nama: 'API PustakaKu',
+      endpoints: ['/api/products', '/api/products/:id', '/api/categories', '/api/categories/:id'],
+    })
+  }
 
   try {
     if (resource === 'products') {

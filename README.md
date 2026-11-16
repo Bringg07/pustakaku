@@ -73,9 +73,12 @@ Ciri API yang benar: dibuka di browser, `/api/products` menampilkan **JSON** sep
 
 ```
 api/
-  [...path].js         entry point Vercel Function (menangkap semua /api/*)
+  products.js          Vercel Function → GET /api/products
+  products/[id].js     Vercel Function → GET /api/products/:id
+  categories.js        Vercel Function → GET /api/categories
+  categories/[id].js   Vercel Function → GET /api/categories/:id
   server.js            server API untuk lokal (npm run api)
-  _handler.js          logika endpoint products & categories
+  _handler.js          logika endpoint + pengambilan data (Supabase)
   _data.js             data contoh, dipakai kalau Supabase belum diisi
 src/
   services/api.js      semua pemanggilan API (ubah di sini kalau API berubah)
