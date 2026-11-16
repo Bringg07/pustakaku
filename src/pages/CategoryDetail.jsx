@@ -10,8 +10,9 @@ export default function CategoryDetail() {
   const { data, loading, error, retry } = useFetch(() => Promise.all([getCategory(id), getBooks()]), [id])
 
   const [category, books] = data || [null, []]
-  // API tidak punya endpoint "buku per kategori", jadi disaring di sini
-  const booksInCategory = books.filter((b) => b.category_id === id)
+  // API tidak punya endpoint "buku per kategori", jadi disaring di sini.
+  // Dibandingkan sebagai string karena id dari URL selalu berupa teks.
+  const booksInCategory = books.filter((b) => String(b.category_id) === String(id))
 
   return (
     <div>

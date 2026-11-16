@@ -1,32 +1,37 @@
 // Semua pemanggilan ke API (Modul 1) ada di file ini.
 // Kalau struktur API-mu beda, cukup ubah file ini saja.
 
+// Kosong = pakai /api di domain yang sama (API bawaan folder `api/`).
+// Isi VITE_API_URL hanya kalau ingin memakai API lain (mis. API Modul 1).
 const BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
 
 async function request(path) {
-  if (!BASE_URL) {
-    throw new Error('VITE_API_URL belum diisi. Salin .env.example menjadi .env lalu isi URL API-mu.')
-  }
+  const url = `${BASE_URL}/api${path}`
 
   let res
   try {
-    res = await fetch(`${BASE_URL}/api${path}`)
+    res = await fetch(url)
   } catch {
     throw new Error('Tidak bisa terhubung ke server. Cek koneksi internet atau pengaturan CORS API.')
   }
 
-  if (!res.ok) {
-    let message = `Permintaan gagal (${res.status})`
-    try {
-      const body = await res.json()
-      if (body?.error) message = body.error
-    } catch {
-      // body bukan JSON, pakai pesan default
-    }
-    throw new Error(message)
+  // API yang benar selalu membalas JSON. Kalau yang datang HTML, berarti alamat
+  // /api dibalas halaman aplikasi (bukan API) — cek VITE_API_URL atau server API-nya.
+  const raw = await res.text()
+  let body
+  try {
+    body = JSON.parse(raw)
+  } catch {
+    throw new Error(
+      `Alamat ${url} membalas HTML/halaman web, bukan JSON (status ${res.status}). Jalankan API dengan \`node api/server.js\` atau cek VITE_API_URL.`,
+    )
   }
 
-  return res.json()
+  if (!res.ok) {
+    throw new Error(body?.error || `Permintaan gagal (${res.status})`)
+  }
+
+  return body
 }
 
 // products di API dipakai sebagai "buku"

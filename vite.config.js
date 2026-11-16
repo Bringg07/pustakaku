@@ -3,8 +3,13 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// API lokal (folder api/) berjalan di port 3000, jadi /api diteruskan ke sana.
+const apiProxy = { '/api': 'http://localhost:3000' }
+
 // https://vite.dev/config/
 export default defineConfig({
+  server: { proxy: apiProxy },
+  preview: { proxy: apiProxy },
   plugins: [
     react(),
     tailwindcss(),
